@@ -84,6 +84,10 @@ def execute(id):
         
         task.execute_at = datetime.now()
   
+        uploads_dir = 'app/uploads'
+        if not os.path.exists(uploads_dir):
+            os.makedirs(uploads_dir)
+            
         for i in range(5):
             img = PILImage.new('RGB', (300, 300), color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)))
 
