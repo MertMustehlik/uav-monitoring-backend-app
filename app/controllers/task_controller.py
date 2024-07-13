@@ -1,10 +1,10 @@
 from flask import Blueprint, request, jsonify
-from app.models import Drone
 from app import db
 from datetime import datetime
-from PIL import Image as PILImage, ImageDraw
+from PIL import Image as PILImage
 import random
 import os
+from app.middleware.authenticate import authenticate_middleware
 
 module = Blueprint('tasks', __name__)
 
@@ -33,6 +33,7 @@ def image_to_format(image):
     }
 
 @module.route('/', methods=['GET'])
+@authenticate_middleware
 def index():
     tasks = Task.query.order_by(Task.id.desc()).all()
     tasks_list = [task_to_format(task) for task in tasks]
@@ -40,6 +41,7 @@ def index():
     return jsonify({"success": True, "payload": tasks_list}), 200
 
 @module.route('/', methods=['POST'])
+@authenticate_middleware
 def create():
     name = request.form.get("name")
     description = request.form.get("description")
@@ -61,6 +63,7 @@ def create():
         return jsonify({"success": False, "message": str(e)}), 500
     
 @module.route('/<int:id>', methods=['GET'])
+@authenticate_middleware
 def show(id):
     task = Task.query.get(id)
     if not task:
@@ -69,6 +72,7 @@ def show(id):
     return jsonify({"success": True, "payload": task_to_format(task)}), 200
 
 @module.route('/<int:id>/execute', methods=['POST'])
+@authenticate_middleware
 def execute(id):
     try:
         task = Task.query.get(id)
@@ -99,6 +103,7 @@ def execute(id):
         return jsonify({"success": False, "message": str(e)}), 500
 
 @module.route('/<int:id>/images', methods=['GET'])
+@authenticate_middleware
 def images(id): 
     try:
         task = Task.query.get(id)

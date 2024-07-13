@@ -1,6 +1,9 @@
 from flask import Blueprint, request, jsonify
 from app.models import Drone
 from app import db
+from functools import wraps
+from app.middleware.authenticate import authenticate_middleware
+
 
 module = Blueprint('drones', __name__)
 
@@ -13,6 +16,7 @@ def drone_to_format(drone):
     }
 
 @module.route('/', methods=['GET'])
+@authenticate_middleware
 def index():
     drones = Drone.query.order_by(Drone.id.desc()).all()
 
@@ -20,6 +24,7 @@ def index():
     return jsonify({"success": True, "payload": drones_list})
 
 @module.route('/', methods=['POST'])
+@authenticate_middleware
 def create():
     name = request.form.get("name")
     if not name:
